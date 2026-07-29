@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/furkannurovic/lolChampTracker/main/.github/social-preview.png" alt="LoL Champ Tracker — every game you've played, graded" width="100%">
+  <img src="https://raw.githubusercontent.com/furkannurovic/LoLCT/main/.github/social-preview.png" alt="LoL Champ Tracker — every game you've played, graded" width="100%">
 </p>
 
 # LoL Champ Tracker
