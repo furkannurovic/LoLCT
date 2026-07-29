@@ -1,4 +1,4 @@
-# Leagee of Legends Champ Tracker
+# League of Legends Champ Tracker
 
 A local-first League of Legends match tracker. It pulls your match history straight from the
 **official Riot Games API**, grades every game against the nine other players who were actually
