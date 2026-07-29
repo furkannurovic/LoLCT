@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# build output — publish these as GitHub Releases, don't commit them
+# (the portable .exe alone is ~76 MB)
+dist/
+out/
+
+# logs
+*.log
+npm-debug.log*
+
+# editors
+.vscode/
+.idea/
+*.swp
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# NOTE: build/ and assets/champions/ are deliberately NOT ignored.
+# They're generated (npm run icons / node fetch-data.js) but small and required
+# to build and run offline, so they're committed.

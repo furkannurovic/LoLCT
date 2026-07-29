@@ -1,0 +1,12 @@
+# Normalise line endings: LF in the repo and in working copies on every platform.
+# This project gets cloned on both Windows and macOS (macOS builds must be made
+# there), so pinning avoids a whole-file diff the first time it's touched elsewhere.
+* text=auto eol=lf
+
+# Binary assets — never normalise these
+*.png  binary
+*.ico  binary
+*.icns binary
+*.exe  binary
+*.dmg  binary
+*.zip  binary

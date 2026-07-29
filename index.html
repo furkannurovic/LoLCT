@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';" />
+  <title>LoL Match Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">LoL</div>
+      <div class="brand-text">
+        <h1>Match Tracker</h1>
+        <p class="subtitle">Match history, per-game marks &amp; champion stats from the Riot API</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input id="search" type="text" placeholder="Search champions…" autocomplete="off" spellcheck="false" />
+      </div>
+      <button id="sync" class="btn-primary" title="Fetch your latest match history from the Riot API">
+        <svg class="sync-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="sync-label">Sync</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- player identity + sync status -->
+  <section class="sync-bar">
+    <div class="player" id="player-view">
+      <div class="player-avatar" id="player-pic" title="Summoner icon">?</div>
+      <div class="player-id">
+        <div class="riot-id">
+          <span class="riot-name" id="riot-name">—</span><span class="riot-tag" id="riot-tag"></span>
+          <span class="region-badge" id="region-badge">EUNE</span>
+        </div>
+        <div class="sync-meta"><span id="last-sync">Not synced yet</span></div>
+      </div>
+      <button id="edit-id" class="link-btn">Change</button>
+    </div>
+
+    <form class="player-edit hidden" id="player-edit" autocomplete="off">
+      <div class="edit-row">
+        <input id="in-name" class="mini-input" placeholder="Riot name" spellcheck="false" />
+        <span class="hash">#</span>
+        <input id="in-tag" class="mini-input mini-tag" placeholder="tag" spellcheck="false" />
+        <select id="in-region" class="mini-input mini-region">
+          <option value="eune">EUNE</option><option value="euw">EUW</option>
+          <option value="na">NA</option><option value="kr">KR</option>
+          <option value="br">BR</option><option value="tr">TR</option>
+          <option value="oce">OCE</option><option value="lan">LAN</option>
+          <option value="las">LAS</option><option value="ru">RU</option>
+          <option value="jp">JP</option><option value="vn">VN</option>
+        </select>
+      </div>
+      <div class="edit-row">
+        <input id="in-key" class="mini-input mini-key" type="password" spellcheck="false"
+               placeholder="Riot API key (RGAPI-…) — required, unlocks every game &amp; all queues" />
+        <button type="button" id="test-key" class="btn-mini">Test</button>
+        <button type="button" id="get-key" class="btn-mini">Get a key ↗</button>
+      </div>
+      <div class="edit-row edit-actions">
+        <button type="submit" class="btn-mini-primary">Save</button>
+        <button type="button" id="cancel-id" class="btn-mini">Cancel</button>
+        <span class="edit-hint">Free dev keys expire every 24h — regenerate at developer.riotgames.com and paste the new one.</span>
+      </div>
+    </form>
+
+    <div class="sync-status" id="sync-status"></div>
+  </section>
+
+  <!-- view tabs + overall average mark -->
+  <section class="tabs-bar">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-view="champions">Champions</button>
+      <button class="tab" data-view="matches">Matches</button>
+    </div>
+    <div class="avg-mark-chip" id="avg-mark-chip" title="Average performance mark across all graded games">
+      <span class="amc-lbl">Avg mark</span>
+      <span class="amc-val" id="avg-mark">—</span>
+    </div>
+  </section>
+
+  <!-- ============ CHAMPIONS VIEW ============ -->
+  <div id="view-champions">
+    <section class="toolbar">
+      <div class="progress-block">
+        <div class="progress-stats">
+          <span id="count" class="count">0</span>
+          <span class="count-total">/ <span id="total">0</span> champions <span id="progress-noun">played</span></span>
+        </div>
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <div id="percent" class="percent">0%</div>
+      </div>
+
+      <div class="filters">
+        <label class="az-toggle" id="az-toggle" title="A-to-Z challenge — champions you've won with get a ✓ and show how many games you've played them">
+          <input type="checkbox" id="az-check" />
+          <span class="az-track"><span class="az-thumb"></span></span>
+          <span class="az-label">A to Z</span>
+        </label>
+        <div class="chips" id="filter-chips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="played">Played</button>
+          <button class="chip" data-filter="unplayed">Unplayed</button>
+        </div>
+        <select id="sort" class="mini-input">
+          <option value="name">Sort: Name</option>
+          <option value="attempts">Sort: Games</option>
+          <option value="winrate">Sort: Win rate</option>
+          <option value="mark">Sort: Avg mark</option>
+          <option value="kda">Sort: KDA</option>
+          <option value="recent">Sort: Recently played</option>
+        </select>
+      </div>
+    </section>
+
+    <main id="grid" class="grid"></main>
+    <div id="empty" class="empty hidden">No champions match your filters.</div>
+  </div>
+
+  <!-- ============ MATCHES VIEW ============ -->
+  <div id="view-matches" class="hidden">
+    <section id="duos" class="duos"></section>
+    <main id="matches" class="matches"></main>
+    <div id="matches-empty" class="empty hidden">No games tracked yet. Add your Riot key and hit Sync.</div>
+  </div>
+
+  <!-- details modal -->
+  <div id="modal" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="champions-data.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
